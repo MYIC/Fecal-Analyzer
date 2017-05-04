@@ -275,7 +275,7 @@ void SpeedModeRun(unsigned char axis,unsigned char targetV)
 }
 void StartRef()
 {
-	if(AxisV[ui2].Xin&8 || AxisV[ui2].RunStep ==4)	//电机压到参考点开关上或者电机停止运动
+	if(AxisV[ui2].Xin&8 || AxisV[ui2].RunStep ==4)	//电机初始位置在参考点开关上或者电机停止运动时
 	{
 		MovDir = ~MovDir;
 		AxisV[ui2].RunStep = 5;											
@@ -342,10 +342,23 @@ void MotorRst()
 								StartRef();
 							}
 							break;
-						case 4: //取样臂C轴电机
+						case 4: //取样臂C轴电机，复位与其它轴不同
 							if((AxisV[MOTOR_ARM_Z].Xin&4) && (AxisV[MOTOR_ARM_Z].Pos.intD >= (AxisP[MOTOR_ARM_Z].workpos0.intD -3)))//取样臂在高位
-							{
-								StartRef();
+							{							
+								if(AxisV[ui2].Xin&8)
+								{
+									gwrite_Port( ui2*16 + ADDR_AXIS0 + YOUT2 , 0x01);
+									MovDir = ~MovDir;//改变运动方向的同时改变计数方向：change the MovDir；改变运动方向不改变计数方向：change the DirRev
+									AxisV[ui2].RunStep = 5;	
+								}
+								else
+								{
+									gwrite_Port( ui2*16 + ADDR_AXIS0 + YOUT2 , 0x00);
+									AxisV[ui2].RunStep = 3;	
+								}
+								MotorY |= 0x03;
+								AxisV[ui2].Yout = MotorY;
+								AxisV[ui2].TargetV = AxisP[ui2].MannualSpeed;
 							}						
 							break;
 						case 7: //盘电机
@@ -403,6 +416,7 @@ void MotorRst()
 					}
 				}
 				break;
+			break;
 			default:
 				break;
 		}
