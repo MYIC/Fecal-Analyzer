@@ -256,6 +256,15 @@ void ProcessData()
 			ui2 =rxBuffer[6];
 			ui3 =ui2<<4;
 			tmpRelay[1] =((ui1 &0x0f)|(ui3 &0xf0));
+			
+			ui1 =rxBuffer[7];			//增加一路两通阀，双字节变量控制泵阀
+			ui2 =rxBuffer[8];
+			ui3 =ui2<<4;
+			tmpRelay[2] =(ui1 &0x0f)|(ui3 &0xf0);
+			ui1 =rxBuffer[9];
+			ui2 =rxBuffer[10];
+			ui3 =ui2<<4;
+			tmpRelay[3] =((ui1 &0x0f)|(ui3 &0xf0));			
 		}
 		else if((Cur_CMD &0xf0) ==RSCMD_RELAYPARA)//继电器延时参数
 		{

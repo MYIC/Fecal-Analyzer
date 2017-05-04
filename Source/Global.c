@@ -227,12 +227,19 @@ void UserTimer()
 					RelayOffCnt[ui0] --;
 					if(RelayOffCnt[ui0] ==0x00)
 					{
-						ui1 =1;
-						ui1 <<=ui0;
-						ui2 =~ui1;
-						if(ui0 ==QIBENG1 || ui0 ==SHUIBENG1 || ui0 ==SHUIBENG2)
+						if(ui0 <8)
 						{
-							YY0 &=ui2;	
+							ui1 =1;
+							ui1 <<=ui0;
+							ui2 =~ui1;
+							if(ui0 ==QIBENG1 || ui0 ==SHUIBENG1 || ui0 ==SHUIBENG2)
+							{
+								YY0 &=ui2;	
+							}							
+						}
+						else
+						{
+							//YY1 &=ui2;
 						}
 					}
 			 }

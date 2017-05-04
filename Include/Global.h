@@ -55,7 +55,7 @@ union uintData
 #define 	PLATE_OTHER 		0x12
 #define 	MICROXYZ_OTHER 	0x13
 
-#define		SANTONG1			0x00
+#define		LIANGTONG3		0x00		//mix water
 #define		QIBENG1				0x01
 #define		SHUIBENG1			0x02
 #define		SANTONG2			0x03
@@ -63,6 +63,7 @@ union uintData
 #define		LIANGTONG2		0x05
 #define		LIANGTONG1		0x06
 #define		SHUIBENG2			0x07
+#define		LIANGTONG4		0x08		//mix gas
 
 #define PART_PLATE		0
 #define PART_ARM1			1
@@ -155,7 +156,7 @@ struct	AxisVar
 #define		REFPOS_H				0x07
 
 #define 	MOTORNUM 	8
-#define 	RELAYNUM 	8
+#define 	RELAYNUM 	16		//7¸öÔ¤Áô
 #define 	CUPNUM 		24
 
 /*universal global variable*/

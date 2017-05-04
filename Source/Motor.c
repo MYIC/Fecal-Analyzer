@@ -9,7 +9,7 @@
 float 	code 		KsTab_25M[ADCON_LEVEL] ={10.49,5.24,3.50,2.62,2.10,1.75,1.50,1.31,1.17,1.05,0.95,0.87,0.81,0.75,0.70,0.66,0.62,0.58,0.55,0.52};
 float 	data		Ks;
 uchar   data    Kv;
-uchar		data 		tmpRelay[2];
+uchar		data 		tmpRelay[4];
 bit		mixFlag;
 bit		sampleFlag;
 bit		cleanFlag;
@@ -40,10 +40,16 @@ void IOCtrl()
 		if((ui0 &7) ==0)
 		{
 			ui1 =1;
-			YY0 |=*gPtr;	
+			if((ui0 &15) ==0)
+				YY1 |=*gPtr;
+			else
+				YY0 |=*gPtr;				
 			*gPtr =0;
 			gPtr ++;
-			YY0 &= ~(*gPtr);
+			if((ui0 &15) ==0)
+				YY1 &= ~(*gPtr);
+			else
+				YY0 &= ~(*gPtr);			
 			*gPtr =0;
 			gPtr ++;
 		}
@@ -101,7 +107,14 @@ void PositioningCompleted(unsigned char axis)
 	CurV = 0;
 	AxisV[axis].Speed = CurV;
 	gwrite_Port(ADDR_AXIS0 + axis*16 +SPEEDCMD, CurV);		
-	AxisV[axis].Yout &= 0x3c;	//clear Decflag & Positioning
+	if(axis ==MOTOR_PLATE)
+	{
+		AxisV[axis].Yout &= 0x3f;	//在定位模式下，盘的锁定力矩与运行力矩相同
+	}
+	else
+	{
+		AxisV[axis].Yout &= 0x3c;	//clear Decflag & Positioning		
+	}
 	gwrite_Port(ADDR_AXIS0 + axis*16 +STATECMD, AxisV[axis].Yout);
 	
 	AxisV[axis].TargetV = 0;
@@ -437,10 +450,11 @@ void MixCtrl()
 					AxisV[MOTOR_Mix].RunStep ++;
 				}
 			};break;
-			//三通1接水泵1
+			//两通4打开，两通5关闭
 			case 20:
 			{
-				tmpRelay[1] =0x01;
+				tmpRelay[0] =0x01;
+				tmpRelay[3] =0x01;
 				AxisV[MOTOR_Mix].RunStep ++;				
 			};break;
 			case 21:
@@ -464,12 +478,14 @@ void MixCtrl()
 					AxisV[MOTOR_Mix].RunStep ++;
 				}				
 			};break;
-			//三通1接气泵，开气泵
+			//两通4关闭，两通5打开，开气泵
 			case 24:
 			{
 				if(ContinueRun)
 				{
-					tmpRelay[0] =0x03;
+					tmpRelay[1] =0x01;
+					tmpRelay[2] =0x01;					
+					tmpRelay[0] =0x02;
 					AxisV[MOTOR_Mix].RunStep ++;						
 				}			
 			};break;
@@ -478,9 +494,11 @@ void MixCtrl()
 			{
 				if(RelayOffCnt[QIBENG1] ==0)
 				{
-					AxisV[MOTOR_Mix].RunStep ++;
+					//AxisV[MOTOR_Mix].RunStep ++;
+					AxisV[MOTOR_Mix].RunStep =32;
 				}
 			};break;
+			/*
 			//三通1接水泵
 			case 26:
 			{
@@ -524,6 +542,7 @@ void MixCtrl()
 					AxisV[MOTOR_Mix].RunStep ++;
 				}
 			};break;
+			*/
 			//搅拌臂到上位
 			case 32:
 			{
